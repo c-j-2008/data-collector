@@ -1,0 +1,14 @@
+{
+  "name": "data-collector",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply data-collector-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply data-collector-db --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

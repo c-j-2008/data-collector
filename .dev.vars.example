@@ -1,0 +1,3 @@
+# Local-only development values. Copy to .dev.vars; do not commit that file.
+ADMIN_PASSWORD=1256
+SESSION_SECRET=replace-this-with-a-long-random-local-secret

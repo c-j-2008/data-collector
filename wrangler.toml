@@ -1,0 +1,13 @@
+name = "data-collector"
+main = "src/worker.js"
+compatibility_date = "2026-11-07"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "data-collector-db"
+database_id = "9226545f-7f5a-4f8c-9f65-6909b48c3914"
+migrations_dir = "migrations"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

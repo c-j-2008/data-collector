@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081016">
+  <title>Digital Footprint Research</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #081016;
+      --panel: rgba(19, 32, 42, .75);
+      --line: rgba(157, 211, 224, .19);
+      --text: #eef8fa;
+      --muted: #a5b8bf;
+      --accent: #67e8c5;
+      --danger: #ff8d98;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 15% 0, #123240 0, transparent 34%), var(--bg);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh
+    }
+
+    button,
+    input {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .loader {
+      text-align: center
+    }
+
+    .loader i {
+      display: block;
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .modal,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 60px #0008;
+      backdrop-filter: blur(14px);
+      border-radius: 18px
+    }
+
+    .modal {
+      width: min(100%, 480px);
+      padding: 30px
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase
+    }
+
+    .modal h1 {
+      font-size: 1.75rem;
+      line-height: 1.15;
+      margin: .5rem 0
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .captcha {
+      background: repeating-linear-gradient(135deg, #12313a 0 3px, #0b1d25 3px 9px);
+      border: 1px dashed #6ee7c766;
+      border-radius: 9px;
+      font: bold 2rem ui-monospace, monospace;
+      letter-spacing: .35em;
+      text-align: center;
+      padding: 14px;
+      margin: 18px 0;
+      transform: skewY(-2deg);
+      text-decoration: line-through #75efce55 2px
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px
+    }
+
+    .input {
+      width: 100%;
+      padding: 11px 13px;
+      background: #071319;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px
+    }
+
+    .button {
+      border: 1px solid #74e9cd66;
+      border-radius: 8px;
+      background: #1c705f;
+      color: white;
+      padding: 11px 15px;
+      font-weight: 650
+    }
+
+    .button.secondary {
+      background: transparent;
+      border-color: var(--line)
+    }
+
+    .button.danger {
+      background: #7a2731;
+      border-color: #ff8d9866
+    }
+
+    .notice {
+      min-height: 1.5em;
+      color: var(--danger);
+      font-size: .9rem
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: .9rem
+    }
+
+    .check input {
+      margin-top: 5px;
+      accent-color: var(--accent)
+    }
+
+    main {
+      max-width: 1050px;
+      margin: auto;
+      padding: 72px 24px
+    }
+
+    .hero {
+      max-width: 720px;
+      margin-bottom: 42px
+    }
+
+    .hero h1 {
+      font-size: clamp(2.15rem, 6vw, 4.25rem);
+      line-height: 1.05;
+      margin: .45rem 0 1rem
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px
+    }
+
+    .card {
+      padding: 21px
+    }
+
+    .card h2 {
+      font-size: 1.05rem;
+      margin: 0 0 8px
+    }
+
+    .card p {
+      color: var(--muted);
+      margin: 0
+    }
+
+    .privacy {
+      margin-top: 28px;
+      border-left: 3px solid var(--accent)
+    }
+
+    .float {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 3
+    }
+
+    .dashboard {
+      width: min(1100px, 100%);
+      max-height: 90vh;
+      overflow: auto
+    }
+
+    .dash-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0
+    }
+
+    .stat {
+      flex: 1;
+      background: #071319;
+      border-radius: 10px;
+      padding: 12px
+    }
+
+    .stat b {
+      font-size: 1.5rem;
+      display: block
+    }
+
+    .tools {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 20px
+    }
+
+    .tools .input {
+      max-width: 260px
+    }
+
+    .date-group {
+      margin-top: 20px
+    }
+
+    .date-group h3 {
+      font-size: .9rem;
+      color: var(--accent);
+      letter-spacing: .06em
+    }
+
+    .record {
+      padding: 14px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px
+    }
+
+    .record small {
+      color: var(--muted)
+    }
+
+    .details {
+      word-break: break-word
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 8px;
+      align-items: start
+    }
+
+    .record-actions button {
+      font-size: .8rem;
+      padding: 6px 9px
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 20px 0
+    }
+
+    @media(max-width:600px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .modal {
+        padding: 22px
+      }
+
+      .row {
+        align-items: stretch
+      }
+
+      .row .input {
+        min-width: 0
+      }
+
+      .dash-head {
+        align-items: flex-start;
+        flex-direction: column
+      }
+
+      .record {
+        grid-template-columns: 1fr
+      }
+
+      .record-actions {
+        grid-row: 1;
+        grid-column: 1;
+        justify-content: flex-end
+      }
+
+      .stats {
+        flex-direction: column
+      }
+
+      .float {
+        right: 12px;
+        bottom: 12px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section id="loading" class="screen">
+    <div class="loader"><i></i><strong>Preparing privacy research</strong>
+      <p class="muted">Loading secure study information…</p>
+    </div>
+  </section>
+  <section id="gate" class="screen hidden">
+    <div class="modal">
+      <div class="eyebrow">Demonstration check</div>
+      <h1>Human Verification</h1>
+      <p class="muted">Please type the letters and numbers displayed in the image below.</p>
+      <div id="captcha" class="captcha"></div>
+      <div class="row"><input id="captchaInput" class="input" autocomplete="off" autocapitalize="off" spellcheck="false"
+          aria-label="CAPTCHA answer"><button id="refreshCaptcha" class="button secondary"
+          type="button">Refresh</button></div>
+      <p id="captchaMessage" class="notice"></p><button id="verifyCaptcha" class="button" type="button">Verify</button>
+    </div>
+  </section>
+  <section id="consent" class="screen hidden">
+    <div class="modal">
+      <div class="eyebrow">WELCOME</div>
+      <h1>Thank u for participating on this study</h1>
+      <p class="muted">this website will help people around world to prevent scammers and stay safe on internet.</p><label class="check"><input id="consentCheck"
+          type="checkbox"><span>please click this box to procced with
+          submission.</span></label>
+      <p id="consentMessage" class="notice"></p><button id="startResearch" class="button" type="button"> continue</button>
+    </div>
+  </section>
+  <section id="location" class="screen hidden">
+    <div class="modal">
+      <div class="eyebrow">NOTICE</div>
+     
+      <p class="muted">We do not collect cookies or personal information. 
+        Limited device access may be requested solely to help prevent excessive usage and manage storage efficiently.
+         Your privacy remains our priority.</p>
+      <p id="locationMessage" class="notice"></p>
+      <div class="row"><button id="shareLocation" class="button" type="button">CONTINUE</button><button disabled
+          id="skipLocation" class="button secondary" type="button">ADMIN</button></div> 
+    </div>
+  </section>
+  <main id="education" class="hidden">
+    <section class="hero">
+      <div class="eyebrow">Digital safety guide</div>
+      <h1>Protect Yourself From Online Scams</h1>
+      <p class="muted">A concise guide to recognizing risks, reducing your digital footprint, and keeping control of
+        personal information.</p>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <h2>How phishing works</h2>
+        <p>Scammers imitate trusted brands or people to create urgency and get you to reveal a password, code, or
+          payment detail.</p>
+      </article>
+      <article class="card">
+        <h2>Information collection</h2>
+        <p>Forms, giveaways, breached accounts, and public posts can be combined into a detailed profile of a person.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Suspicious websites</h2>
+        <p>Check the full domain, contact details, spelling, payment methods, and whether the offer feels unusually
+          urgent or generous.</p>
+      </article>
+      <article class="card">
+        <h2>Fraudulent links</h2>
+        <p>Hover or press and hold to inspect a link. Look for misspellings, extra words, strange subdomains, and
+          shortened URLs.</p>
+      </article>
+      <article class="card">
+        <h2>Personal data risks</h2>
+        <p>Dates of birth, addresses, documents, and security answers can enable account takeover and identity fraud
+          when exposed.</p>
+      </article>
+      <article class="card">
+        <h2>IP addresses and footprints</h2>
+        <p>Web servers receive an IP address to respond to a visit. Browser settings and permission choices affect what
+          additional data a site can access.</p>
+      </article>
+      <article class="card">
+        <h2>Protect your identity</h2>
+        <p>Use a password manager, unique passwords, multi-factor authentication, updates, careful sharing, and
+          independent verification of requests.</p>
+      </article>
+    </section>
+    <article class="card privacy">
+      <h2>This research demonstration</h2>
+      <p>Participation required your consent. This site uses a locally stored research UUID to recognize repeat study
+        visits, never uses covert fingerprinting, and requests browser location only after consent.</p>
+    </article>
+  </main>
+  <button id="adminOpen" class="button float hidden" type="button">Research Data</button>
+  <section id="adminLogin" class="screen hidden">
+    <div class="modal">
+      <div class="eyebrow">Restricted area</div>
+      <h1>Research Data</h1>
+      <div class="stack"><input id="adminPassword" class="input" type="password" autocomplete="current-password"
+          placeholder="Administrator password">
+        <p id="loginMessage" class="notice"></p>
+        <div class="row"><button id="loginSubmit" class="button" type="button">Sign in</button><button
+            class="button secondary close" type="button">Cancel</button></div>
+      </div>
+    </div>
+  </section>
+  <section id="dashboard" class="screen hidden">
+    <div class="modal dashboard">
+      <div class="dash-head">
+        <div>
+          <div class="eyebrow">Administrator only</div>
+          <h1>Research submissions</h1>
+        </div><button id="logout" class="button secondary" type="button">Logout</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Total submissions</small><b id="totalCount">0</b></div>
+        <div class="stat"><small>Unique browser UUIDs</small><b id="uniqueCount">0</b></div>
+      </div>
+      <div class="tools"><input id="search" class="input" placeholder="Search UUID or IP"><input id="dateFilter"
+          class="input" type="date"><button id="exportJson" class="button secondary" type="button">Export
+          JSON</button><button id="exportCsv" class="button secondary" type="button">Export CSV</button><button
+          id="clearAll" class="button danger" type="button">Clear all</button></div>
+      <div id="records"></div>
+    </div>
+  </section>
+  <script>
+    const $ = id => document.getElementById(id); let captcha = ""; let browserUuid = "";
+    const screens = ["loading", "gate", "consent", "location", "education", "adminLogin", "dashboard"];
+    function show(id) { screens.forEach(x => $(x).classList.toggle("hidden", x !== id)); if (id === "education") $("adminOpen").classList.remove("hidden"); }
+    function newCaptcha() { captcha = Array.from(crypto.getRandomValues(new Uint8Array(6)), n => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[n % 32]).join(""); $("captcha").textContent = captcha; $("captchaInput").value = ""; $("captchaMessage").textContent = "" }
+    setTimeout(() => { show("gate"); newCaptcha() }, 3000);
+    $("refreshCaptcha").onclick = newCaptcha; $("verifyCaptcha").onclick = () => { if ($("captchaInput").value.trim().toUpperCase() === captcha) { show("consent") } else { $("captchaMessage").textContent = "That code does not match. Try again."; newCaptcha() } };
+    $("captchaInput").addEventListener("keydown", e => { if (e.key === "Enter") $("verifyCaptcha").click() });
+    $("startResearch").onclick = () => { if (!$("consentCheck").checked) { $("consentMessage").textContent = "Consent is required before any research data is submitted."; return } browserUuid = localStorage.getItem("researchBrowserUuid") || crypto.randomUUID(); localStorage.setItem("researchBrowserUuid", browserUuid); show("location") };
+    function submitLocation(status, coords = null) { fetch("/api/submissions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ browserUuid, consent: true, locationStatus: status, latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null }) }).finally(() => show("education")) }
+    $("skipLocation").onclick = () => submitLocation("skipped"); $("shareLocation").onclick = () => { if (!navigator.geolocation) { submitLocation("unavailable"); return } $("locationMessage").textContent = "Waiting for your browser…"; navigator.geolocation.getCurrentPosition(p => submitLocation("granted", p.coords), e => submitLocation(e.code === 1 ? "denied" : e.code === 3 ? "timeout" : "unavailable"), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }) };
+    $("adminOpen").onclick = () => show("adminLogin"); document.querySelectorAll(".close").forEach(b => b.onclick = () => show("education"));
+    async function request(path, options = {}) { const r = await fetch(path, options); const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error || "Request failed"); return d }
+    $("loginSubmit").onclick = async () => { try { await request("/api/admin/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: $("adminPassword").value }) }); $("adminPassword").value = ""; show("dashboard"); loadRecords() } catch (e) { $("loginMessage").textContent = e.message } };
+    let timer;["search", "dateFilter"].forEach(id => $(id).addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(loadRecords, 200) }));
+    async function loadRecords() { try { const q = new URLSearchParams(); if ($("search").value) q.set("search", $("search").value); if ($("dateFilter").value) q.set("date", $("dateFilter").value); const data = await request("/api/admin/records?" + q); $("totalCount").textContent = data.totals.total; $("uniqueCount").textContent = data.totals.uniqueBrowsers; const groups = {}; data.records.forEach(r => (groups[r.submitted_at.slice(0, 10)] ??= []).push(r)); $("records").innerHTML = Object.keys(groups).length ? Object.entries(groups).map(([date, rs]) => `<section class="date-group"><h3>${escapeHtml(date)}</h3>${rs.map(recordHtml).join("")}</section>`).join("") : '<p class="empty">No matching records.</p>' } catch (e) { if (e.message.includes("Authentication")) show("education") } }
+    function recordHtml(r) { const location = r.location_status === "granted" ? `${r.latitude}, ${r.longitude}` : r.location_status; return `<article class="record"><div class="details"><strong>${escapeHtml(r.submitted_at.slice(11, 19))} UTC · visit ${r.visit_count}</strong><br><small>UUID: ${escapeHtml(r.browser_uuid)}<br>IP: ${escapeHtml(r.ip_address || "Unavailable")} · Location: ${escapeHtml(location)}<br>First seen: ${escapeHtml(r.first_seen_at)}</small></div><div class="record-actions"><button class="button secondary" onclick="viewRecord(${r.id})">View</button><button class="button danger" onclick="deleteRecord(${r.id})">Delete</button></div></article>` }
+    function escapeHtml(v) { return String(v).replace(/[&<>'"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", "\"": "&quot;" }[c])) } window.viewRecord = id => { const el = [...document.querySelectorAll(".record")].find(x => x.querySelector(`button[onclick="viewRecord(${id})"]`)); if (el) alert(el.innerText) }; window.deleteRecord = async id => { if (confirm("Delete this research record?")) { await request("/api/admin/records/" + id, { method: "DELETE" }); loadRecords() } };
+    $("clearAll").onclick = async () => { if (confirm("Permanently delete every research record?")) { await request("/api/admin/records", { method: "DELETE" }); loadRecords() } }; $("exportJson").onclick = () => location.href = "/api/admin/export?format=json"; $("exportCsv").onclick = () => location.href = "/api/admin/export?format=csv"; $("logout").onclick = async () => { await request("/api/admin/logout", { method: "POST" }); show("education") };
+  </script>
+</body>
+
+</html>
